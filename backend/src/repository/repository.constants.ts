@@ -1,0 +1,2 @@
+export const MONGOOSE_CONNECTION = 'MONGOOSE_CONNECTION';
+export const FILM_MODEL = 'FILM_MODEL';

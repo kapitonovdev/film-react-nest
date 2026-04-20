@@ -10,13 +10,17 @@ import {
   CreateOrderDto,
   OrderedTicketDto,
   OrderResponseDto,
+  OrderTicketDto,
 } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
   constructor(private readonly filmsRepository: FilmsRepository) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<OrderResponseDto> {
+  async create(
+    payload: CreateOrderDto | OrderTicketDto[],
+  ): Promise<OrderResponseDto> {
+    const createOrderDto = this.normalizeOrderPayload(payload);
     this.validateOrder(createOrderDto);
 
     const [firstTicket] = createOrderDto.tickets;
@@ -72,15 +76,19 @@ export class OrderService {
     };
   }
 
+  private normalizeOrderPayload(
+    payload: CreateOrderDto | OrderTicketDto[],
+  ): CreateOrderDto {
+    if (Array.isArray(payload)) {
+      return {
+        tickets: payload,
+      };
+    }
+
+    return payload;
+  }
+
   private validateOrder(createOrderDto: CreateOrderDto): void {
-    if (!createOrderDto.email?.trim()) {
-      throw new BadRequestException({ error: 'Email is required' });
-    }
-
-    if (!createOrderDto.phone?.trim()) {
-      throw new BadRequestException({ error: 'Phone is required' });
-    }
-
     if (
       !Array.isArray(createOrderDto.tickets) ||
       createOrderDto.tickets.length === 0

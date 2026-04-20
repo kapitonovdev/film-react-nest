@@ -8,8 +8,8 @@ export class OrderTicketDto {
 }
 
 export class CreateOrderDto {
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   tickets: OrderTicketDto[];
 }
 

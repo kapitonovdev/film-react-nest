@@ -25,7 +25,7 @@ const film = {
 const schedule = {
   id: 'session-1',
   daytime: '2024-06-28T10:00:53+03:00',
-  hall: '1',
+  hall: 1,
   rows: 5,
   seats: 10,
   price: 350,
@@ -140,6 +140,32 @@ describe('AppController (e2e)', () => {
       price: schedule.price,
     });
     expect(response.body.items[0].id).toEqual(expect.any(String));
+  });
+
+  it('/api/afisha/order accepts array payload (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/afisha/order')
+      .send([
+        {
+          film: film.id,
+          session: schedule.id,
+          daytime: schedule.daytime,
+          row: 4,
+          seat: 6,
+          price: schedule.price,
+        },
+      ])
+      .expect(201);
+
+    expect(response.body.total).toBe(1);
+    expect(response.body.items[0]).toMatchObject({
+      film: film.id,
+      session: schedule.id,
+      daytime: schedule.daytime,
+      row: 4,
+      seat: 6,
+      price: schedule.price,
+    });
   });
 
   it('rejects duplicate seat in request', () => {

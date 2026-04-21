@@ -1,14 +1,11 @@
 import { INestApplication } from '@nestjs/common';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { FilmsRepository } from '../src/repository/films.repository';
-import {
-  FILM_MODEL,
-  MONGOOSE_CONNECTION,
-} from '../src/repository/repository.constants';
 
 const film = {
   id: 'film-1',
@@ -76,10 +73,14 @@ describe('AppController (e2e)', () => {
     })
       .overrideProvider(FilmsRepository)
       .useValue(repository)
-      .overrideProvider(MONGOOSE_CONNECTION)
-      .useValue({})
-      .overrideProvider(FILM_MODEL)
-      .useValue({})
+      .overrideProvider(getDataSourceToken())
+      .useValue({
+        entityMetadatas: [],
+        options: { type: 'postgres' },
+        getRepository: jest.fn().mockReturnValue({}),
+        getTreeRepository: jest.fn().mockReturnValue({}),
+        getMongoRepository: jest.fn().mockReturnValue({}),
+      })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -88,7 +89,9 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('/api/afisha/films (GET)', () => {

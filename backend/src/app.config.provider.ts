@@ -10,10 +10,13 @@ export const configProvider = {
       port: Number(configService.get<string>('PORT') ?? '3000'),
     },
     database: {
-      driver: configService.get<string>('DATABASE_DRIVER') ?? 'mongodb',
+      driver: configService.get<string>('DATABASE_DRIVER') ?? 'postgres',
       url:
         configService.get<string>('DATABASE_URL') ??
-        'mongodb://localhost:27017/prac',
+        'postgres://localhost:5432/exampledb',
+      username: configService.get<string>('DATABASE_USERNAME') ?? 'exampleuser',
+      password:
+        configService.get<string>('DATABASE_PASSWORD') ?? 'examplepassword',
     },
   }),
 };
@@ -30,4 +33,6 @@ export interface AppConfigHttp {
 export interface AppConfigDatabase {
   driver: string;
   url: string;
+  username: string;
+  password: string;
 }

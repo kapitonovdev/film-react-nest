@@ -8,7 +8,7 @@ import { configureApp } from '../src/app.setup';
 import { FilmsRepository } from '../src/repository/films.repository';
 
 const film = {
-  id: 'film-1',
+  id: '0e33c7f6-27a7-4aa0-8e61-65d7e5effecf',
   rating: 8.5,
   director: 'Director',
   tags: ['Drama'],
@@ -20,7 +20,7 @@ const film = {
 };
 
 const schedule = {
-  id: 'session-1',
+  id: 'f2e429b0-685d-41f8-a8cd-1d8cb63b99ce',
   daytime: '2024-06-28T10:00:53+03:00',
   hall: 1,
   rows: 5,
@@ -114,6 +114,12 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/api/afisha/films/:id/schedule returns 422 for invalid uuid (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/api/afisha/films/test/schedule')
+      .expect(422);
+  });
+
   it('/api/afisha/order (POST)', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/afisha/order')
@@ -169,6 +175,42 @@ describe('AppController (e2e)', () => {
       seat: 6,
       price: schedule.price,
     });
+  });
+
+  it('returns 422 for invalid ticket uuid', () => {
+    return request(app.getHttpServer())
+      .post('/api/afisha/order')
+      .send({
+        tickets: [
+          {
+            film: 'test',
+            session: schedule.id,
+            daytime: schedule.daytime,
+            row: 2,
+            seat: 3,
+            price: schedule.price,
+          },
+        ],
+      })
+      .expect(422);
+  });
+
+  it('returns 422 for invalid ticket payload', () => {
+    return request(app.getHttpServer())
+      .post('/api/afisha/order')
+      .send({
+        tickets: [
+          {
+            film: film.id,
+            session: schedule.id,
+            daytime: 'invalid-date',
+            row: 0,
+            seat: 0,
+            price: 0,
+          },
+        ],
+      })
+      .expect(422);
   });
 
   it('rejects duplicate seat in request', () => {

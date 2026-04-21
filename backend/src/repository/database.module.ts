@@ -15,7 +15,9 @@ import { ScheduleEntity } from './schedule.entity';
       inject: [CONFIG_TOKEN],
       useFactory: (config: AppConfig) => ({
         type: config.database.driver as 'postgres',
-        url: config.database.url,
+        host: config.database.host,
+        port: config.database.port,
+        database: config.database.name,
         username: config.database.username,
         password: config.database.password,
         entities: [FilmEntity, ScheduleEntity],

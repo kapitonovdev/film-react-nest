@@ -6,7 +6,7 @@
 
 - Локально: http://localhost
 - pgAdmin: http://localhost:8080
-- Production: будет добавлен после настройки Yandex Cloud, домена и SSH-доступа.
+- Production: http://film-kapitonov.nomorepartiessite.ru
 
 ## Быстрый запуск в Docker
 

@@ -72,7 +72,7 @@ services:
     depends_on:
       - database
     ports:
-      - '${PGADMIN_PORT:-8080}:80'
+      - '127.0.0.1:${PGADMIN_PORT:-8080}:80'
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:

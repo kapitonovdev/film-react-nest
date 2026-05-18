@@ -6,7 +6,7 @@
 
 - Локально: http://localhost
 - pgAdmin: http://localhost:8080
-- Production: http://film-kapitonov.nomorepartiessite.ru
+- Production: https://film-kapitonov.nomorepartiessite.ru
 
 ## Быстрый запуск в Docker
 
@@ -84,3 +84,8 @@ GitHub Actions workflow `.github/workflows/docker.yml` собирает и пу�
 - `ghcr.io/kapitonovdev/film-react-nest-nginx:latest`
 
 Для финального деплоя на Yandex Cloud нужно добавить production URL в этот README, скопировать `docker-compose.yml` и `.env` на сервер, выполнить `docker compose pull` и `docker compose up -d`.
+
+## HTTPS
+
+Для production используется `docker-compose.https.yml` и конфигурация `nginx/https.conf`.
+Сертификат Let's Encrypt должен лежать в `./letsencrypt`, а ACME webroot - в `./certbot/www`.

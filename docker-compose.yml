@@ -1,15 +1,88 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: postgres_container
-    environment:
-      POSTGRES_DB: exampledb
-      POSTGRES_USER: exampleuser
-      POSTGRES_PASSWORD: examplepassword
+  database:
+    image: postgres:16-alpine
+    container_name: film_database
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - film_network
+
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-backend:latest}
+    build:
+      context: ./backend
+    container_name: film_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+    expose:
+      - '3000'
+    networks:
+      - film_network
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-frontend:latest}
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api/afisha
+        VITE_CDN_URL: /content/afisha
+    container_name: film_frontend
+    restart: unless-stopped
+    volumes:
+      - frontend_dist:/frontend-dist
+    networks:
+      - film_network
+
+  nginx:
+    image: ${NGINX_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-nginx:latest}
+    build:
+      context: ./nginx
+    container_name: film_nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - '80:80'
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+    networks:
+      - film_network
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: film_pgadmin
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - database
+    ports:
+      - '${PGADMIN_PORT:-8080}:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - film_network
 
 volumes:
   postgres_data:
+  pgadmin_data:
+  frontend_dist:
+
+networks:
+  film_network:
+    driver: bridge

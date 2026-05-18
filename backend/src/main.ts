@@ -3,10 +3,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppConfig, CONFIG_TOKEN } from './app.config.provider';
 import { AppModule } from './app.module';
 import { configureApp } from './app.setup';
+import { createLogger } from './logger';
 import 'dotenv/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(createLogger());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

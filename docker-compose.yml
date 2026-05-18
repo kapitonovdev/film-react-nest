@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     ports:
-      - '${POSTGRES_PORT:-5432}:5432'
+      - '${POSTGRES_PORT}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,7 +18,7 @@ services:
       - film_network
 
   backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-backend:latest}
+    image: ${BACKEND_IMAGE}
     build:
       context: ./backend
     container_name: film_backend
@@ -34,12 +34,12 @@ services:
       - film_network
 
   frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-frontend:latest}
+    image: ${FRONTEND_IMAGE}
     build:
       context: ./frontend
       args:
-        VITE_API_URL: /api/afisha
-        VITE_CDN_URL: /content/afisha
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_CDN_URL: ${VITE_CDN_URL}
     container_name: film_frontend
     restart: unless-stopped
     volumes:
@@ -48,7 +48,7 @@ services:
       - film_network
 
   nginx:
-    image: ${NGINX_IMAGE:-ghcr.io/kapitonovdev/film-react-nest-nginx:latest}
+    image: ${NGINX_IMAGE}
     build:
       context: ./nginx
     container_name: film_nginx
@@ -72,7 +72,7 @@ services:
     depends_on:
       - database
     ports:
-      - '127.0.0.1:${PGADMIN_PORT:-8080}:80'
+      - '127.0.0.1:${PGADMIN_PORT}:80'
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:

@@ -1,0 +1,8 @@
+node_modules
+dist
+storybook-static
+.env
+npm-debug.log
+yarn-error.log
+Dockerfile
+.dockerignore

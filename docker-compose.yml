@@ -1,0 +1,88 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: film_database
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - film_network
+
+  backend:
+    image: ${BACKEND_IMAGE}
+    build:
+      context: ./backend
+    container_name: film_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+    expose:
+      - '3000'
+    networks:
+      - film_network
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_CDN_URL: ${VITE_CDN_URL}
+    container_name: film_frontend
+    restart: unless-stopped
+    volumes:
+      - frontend_dist:/frontend-dist
+    networks:
+      - film_network
+
+  nginx:
+    image: ${NGINX_IMAGE}
+    build:
+      context: ./nginx
+    container_name: film_nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - '80:80'
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+    networks:
+      - film_network
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: film_pgadmin
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - database
+    ports:
+      - '127.0.0.1:${PGADMIN_PORT}:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - film_network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  frontend_dist:
+
+networks:
+  film_network:
+    driver: bridge

@@ -4,8 +4,8 @@ import * as path from 'node:path';
 
 export function configureApp(app: INestApplication): void {
   app.use(
-    '/content',
-    express.static(path.join(__dirname, '..', 'public', 'content')),
+    '/content/afisha',
+    express.static(path.join(__dirname, '..', 'public', 'content', 'afisha')),
   );
   app.setGlobalPrefix('api/afisha');
   app.enableCors();

@@ -27,7 +27,7 @@ docker compose up -d --build
 ```bash
 backend/test/prac.init.sql
 backend/test/prac.films.sql
-backend/test/prac.shedules.sql
+backend/test/prac.schedules.sql
 ```
 
 После запуска frontend доступен на `http://localhost`, backend проксируется через `http://localhost/api/afisha`, статический контент доступен через `http://localhost/content/afisha`.
